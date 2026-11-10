@@ -1,0 +1,89 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.vs
+*.vscode
+*.DotSettings.user
+
+# Secrets
+appsettings.Development.json
+appsettings.json
+*.secrets.json
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*.sln
+*.csproj.user
+
+# Environment
+.env
+.env.local
+
+# Build artifacts
+dist/
+build/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Runtime
+node_modules/
+package-lock.json
+
+# Test
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+*.test.jsx
+*.spec.jsx
+*.test.tsx
+*.spec.tsx
+
+# Coverage
+coverage/
+
+# Next.js
+.next/
+out/
+
+# NuGet
+*.nupkg
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Linux
+*~

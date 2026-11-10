@@ -1,0 +1,6 @@
+@iazfitcoach_HostAddress = http://localhost:5120
+
+GET {{iazfitcoach_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iazfitcoach — Assistente Técnico de Treino</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0d0f12',
+                        cardBg: '#16191f',
+                        cardBorder: '#232731',
+                        accentGreen: '#10b981',
+                        accentHover: '#059669',
+                        darkText: '#f3f4f6',
+                        mutedText: '#9ca3af'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-darkBg text-darkText min-h-screen flex flex-col font-sans antialiased">
+
+    <!-- Top Header -->
+    <header class="bg-cardBg border-b border-cardBorder py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 bg-accentGreen rounded-full animate-pulse"></div>
+            <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                iazfitcoach <span class="text-xs bg-emerald-950 text-accentGreen px-2 py-0.5 rounded-full border border-emerald-800/50">RAG .NET 8</span>
+            </h1>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="openMetricsModal()" class="text-xs bg-cardBorder hover:bg-gray-800 text-mutedText hover:text-white px-3 py-1.5 rounded-lg transition border border-gray-800 flex items-center gap-1.5">
+                📊 Telemetria & Drift
+            </button>
+            <button onclick="clearChat()" class="text-xs bg-cardBorder hover:bg-gray-800 text-mutedText hover:text-white px-3 py-1.5 rounded-lg transition border border-gray-800">
+                Limpar Chat
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Chat Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 md:p-6 flex flex-col justify-between">
+        <!-- Chat History Area -->
+        <div id="chat-container" class="flex-1 space-y-4 overflow-y-auto mb-4 pr-2 max-h-[calc(100vh-220px)]">
+            <!-- Initial Welcome Message -->
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-900/40 border border-emerald-600/30 flex items-center justify-center text-accentGreen font-bold text-sm shrink-0">
+                    AI
+                </div>
+                <div class="bg-cardBg border border-cardBorder rounded-2xl p-4 max-w-[85%] md:max-w-[75%] shadow-md space-y-2">
+                    <p class="text-sm leading-relaxed text-gray-200">
+                        Olá! Sou o <strong>iazfitcoach</strong>, seu assistente técnico oficial de treino fundamentado em diretrizes científicas e protocolos de reabilitação articular.
+                    </p>
+                    <p class="text-xs text-mutedText">
+                        Pergunte sobre substituições para dor articular (ombro, joelho, lombar), intervalos de descanso, proximidade da falha (RIR) ou cálculo nutricional!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="bg-cardBg border border-cardBorder rounded-2xl p-3 shadow-xl">
+            <form id="chat-form" onsubmit="handleSendMessage(event)" class="flex items-center gap-3">
+                <input
+                    type="text"
+                    id="user-input"
+                    placeholder="Ex: Como adaptar o supino para dor no ombro?"
+                    autocomplete="off"
+                    class="flex-1 bg-transparent border-none outline-none text-white px-3 py-2 text-sm placeholder-gray-500"
+                />
+                <button
+                    type="submit"
+                    id="send-button"
+                    class="bg-accentGreen hover:bg-accentHover text-black font-semibold px-5 py-2.5 rounded-xl text-sm transition shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                    <span>Enviar</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Metrics Modal -->
+    <div id="metrics-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-cardBorder flex items-center justify-between">
+                <h3 class="font-bold text-white flex items-center gap-2">📊 MLOps & Telemetria de Drift</h3>
+                <button onclick="closeMetricsModal()" class="text-mutedText hover:text-white text-sm px-2 py-1">✕</button>
+            </div>
+            <div id="metrics-content" class="p-6 overflow-y-auto space-y-4 text-sm text-gray-300">
+                <p class="text-mutedText">Carregando métricas de telemetria...</p>
+            </div>
+            <div class="p-4 border-t border-cardBorder bg-[#0f1115] flex justify-end">
+                <button onclick="closeMetricsModal()" class="bg-cardBorder hover:bg-gray-800 text-white px-4 py-2 rounded-xl text-xs transition">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-3 text-xs text-mutedText border-t border-cardBorder/50">
+        iazfitcoach Web API &bull; .NET 8 RAG MLOps Engine
+    </footer>
+
+    <script>
+        // Store conversation history for memory window (last 4 messages)
+        let conversationHistory = [];
+
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('user-input');
+            const question = inputEl.value.trim();
+            if (!question) return;
+
+            inputEl.value = '';
+            inputEl.disabled = true;
+            document.getElementById('send-button').disabled = true;
+
+            // Append user message to UI
+            appendMessage('user', question);
+            conversationHistory.push({ role: 'user', content: question });
+
+            // Append loading indicator
+            const loadingId = appendLoading();
+
+            try {
+                const response = await fetch('/api/chat/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: question,
+                        history: conversationHistory.slice(-4) // last 4 messages for memory
+                    })
+                });
+
+                removeLoading(loadingId);
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || 'Erro ao processar solicitação.');
+                }
+
+                const data = await response.json();
+                appendMessage('assistant', data.answer, data.metadata);
+                conversationHistory.push({ role: 'assistant', content: data.answer });
+
+                // Keep history trimmed in memory
+                if (conversationHistory.length > 10) {
+                    conversationHistory = conversationHistory.slice(-10);
+                }
+
+            } catch (err) {
+                removeLoading(loadingId);
+                appendMessage('assistant', `⚠️ **Erro**: ${err.message}`);
+            } finally {
+                inputEl.disabled = false;
+                document.getElementById('send-button').disabled = false;
+                inputEl.focus();
+            }
+        }
+
+        function appendMessage(role, text, metadata = null) {
+            const container = document.getElementById('chat-container');
+            const isUser = role === 'user';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex items-start gap-3 ${isUser ? 'flex-row-reverse' : ''}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = `w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+                isUser
+                    ? 'bg-blue-600/40 border border-blue-500/30 text-blue-400'
+                    : 'bg-emerald-900/40 border border-emerald-600/30 text-accentGreen'
+            }`;
+            avatar.innerText = isUser ? 'EU' : 'AI';
+
+            const bubble = document.createElement('div');
+            bubble.className = `rounded-2xl p-4 max-w-[85%] md:max-w-[75%] shadow-md space-y-2 ${
+                isUser
+                    ? 'bg-blue-600/20 border border-blue-500/30 text-blue-100'
+                    : 'bg-cardBg border border-cardBorder text-gray-200'
+            }`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'text-sm leading-relaxed prose prose-invert max-w-none';
+            contentDiv.innerHTML = isUser ? escapeHtml(text) : marked.parse(text);
+            bubble.appendChild(contentDiv);
+
+            // Telemetry badge if metadata is present
+            if (metadata) {
+                const badge = document.createElement('div');
+                badge.className = 'flex items-center gap-2 pt-2 mt-2 border-t border-cardBorder/60 text-[11px] text-mutedThread text-gray-400';
+
+                const scoreColor = metadata.similarityScore >= 0.65 ? 'text-emerald-400' : 'text-amber-400';
+                badge.innerHTML = `
+                    <span class="bg-black/30 px-2 py-0.5 rounded border border-gray-800">⏱️ ${metadata.latencyMs}ms</span>
+                    <span class="bg-black/30 px-2 py-0.5 rounded border border-gray-800 ${scoreColor}">🎯 Sim: ${(metadata.similarityScore * 100).toFixed(1)}%</span>
+                    <span class="bg-black/30 px-2 py-0.5 rounded border border-gray-800 truncate max-w-[150px]" title="${metadata.topSource}">📄 ${metadata.topSource || 'N/A'}</span>
+                `;
+                bubble.appendChild(badge);
+            }
+
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(bubble);
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        let loadingCounter = 0;
+        function appendLoading() {
+            const container = document.getElementById('chat-container');
+            const id = 'loading-' + (++loadingCounter);
+
+            const wrapper = document.createElement('div');
+            wrapper.id = id;
+            wrapper.className = 'flex items-start gap-3';
+
+            wrapper.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-emerald-900/40 border border-emerald-600/30 flex items-center justify-center text-accentGreen font-bold text-sm shrink-0">AI</div>
+                <div class="bg-cardBg border border-cardBorder rounded-2xl p-4 shadow-md flex items-center gap-2">
+                    <div class="w-2 h-2 bg-accentGreen rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-accentGreen rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                    <div class="w-2 h-2 bg-accentGreen rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                    <span class="text-xs text-mutedText ml-2">Buscando na base RAG e gerando...</span>
+                </div>
+            `;
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+            return id;
+        }
+
+        function removeLoading(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function clearChat() {
+            conversationHistory = [];
+            const container = document.getElementById('chat-container');
+            container.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-emerald-900/40 border border-emerald-600/30 flex items-center justify-center text-accentGreen font-bold text-sm shrink-0">AI</div>
+                    <div class="bg-cardBg border border-cardBorder rounded-2xl p-4 max-w-[85%] md:max-w-[75%] shadow-md space-y-2">
+                        <p class="text-sm leading-relaxed text-gray-200">Chat limpo. Como posso ajudar com seu treino hoje?</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function openMetricsModal() {
+            const modal = document.getElementById('metrics-modal');
+            const content = document.getElementById('metrics-content');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            content.innerHTML = '<p class="text-mutedText">Carregando telemetria e análise de drift...</p>';
+
+            try {
+                const [summaryRes, driftRes] = await Promise.all([
+                    fetch('/api/metrics/summary').then(r => r.json()),
+                    fetch('/api/metrics/drift').then(r => r.json())
+                ]);
+
+                let html = `
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div class="bg-darkBg border border-cardBorder p-3 rounded-xl text-center">
+                            <div class="text-xs text-mutedText">Total de Interações</div>
+                            <div class="text-lg font-bold text-white mt-1">${summaryRes.total || 0}</div>
+                        </div>
+                        <div class="bg-darkBg border border-cardBorder p-3 rounded-xl text-center">
+                            <div class="text-xs text-mutedText">Latência Média</div>
+                            <div class="text-lg font-bold text-emerald-400 mt-1">${Math.round(summaryRes.avgLatencyMs || 0)}ms</div>
+                        </div>
+                        <div class="bg-darkBg border border-cardBorder p-3 rounded-xl text-center">
+                            <div class="text-xs text-mutedText">Similaridade Média</div>
+                            <div class="text-lg font-bold text-blue-400 mt-1">${((summaryRes.avgSimilarity || 0) * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+                    <h4 class="font-bold text-white mt-4 mb-2 flex items-center justify-between">
+                        <span>Alertas de Data Drift / Lacunas na Base</span>
+                        <span class="text-xs bg-amber-950 text-amber-400 px-2 py-0.5 rounded border border-amber-800">${driftRes.driftCount} alertas</span>
+                    </h4>
+                `;
+
+                if (driftRes.drifts && driftRes.drifts.length > 0) {
+                    html += '<div class="space-y-2 max-h-60 overflow-y-auto pr-1">';
+                    driftRes.drifts.forEach(d => {
+                        html += `
+                            <div class="bg-darkBg border border-amber-900/40 p-3 rounded-xl text-xs space-y-1">
+                                <div class="flex justify-between text-mutedText">
+                                    <span>${new Date(d.timestamp).toLocaleTimeString()}</span>
+                                    <span class="text-amber-400 font-semibold">Sim: ${(d.maxCosineSimilarity * 100).toFixed(1)}%</span>
+                                </div>
+                                <div class="text-white font-medium">"${escapeHtml(d.prompt)}"</div>
+                                <div class="text-[11px] text-mutedText">Fonte recuperada: ${d.topSource || 'Nenhuma'}</div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<div class="bg-darkBg border border-cardBorder p-4 rounded-xl text-center text-mutedText text-xs">Nenhum desvio ou lacuna detectada. O RAG está respondendo com alta aderência.</div>';
+                }
+
+                content.innerHTML = html;
+            } catch (err) {
+                content.innerHTML = `<p class="text-red-400 text-xs">Erro ao carregar telemetria: ${err.message}</p>`;
+            }
+        }
+
+        function closeMetricsModal() {
+            const modal = document.getElementById('metrics-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
